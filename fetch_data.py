@@ -8,7 +8,7 @@ def getDetailsForApp(app_id):
     app_page = requests.get(app_page_url)
     soup = BeautifulSoup(app_page.content, 'html.parser')
     details = soup.find('div', class_='show-more-content text-body')
-    print (details)
+    print (details.text.encode("utf-8"))
 
 def getDataFromPlayStore(search_param):
     apps = []
