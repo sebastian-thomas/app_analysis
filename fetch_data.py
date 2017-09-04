@@ -1,14 +1,28 @@
 import requests
 from bs4 import BeautifulSoup
-
+from database import init_db, db_session
+from models import AppDetails
+from sqlalchemy.exc import IntegrityError
 
 def getDetailsForApp(app_id):
     print ('Fetching details for :' + app_id)
+    app_from_db = AppDetails.query.filter_by(package=app_id).first()
+    if app_from_db is not None:
+        print ("Cached")
+        return
     app_page_url = "https://play.google.com/store/apps/details?id=" + app_id
     app_page = requests.get(app_page_url)
     soup = BeautifulSoup(app_page.content, 'html.parser')
     details = soup.find('div', class_='show-more-content text-body')
     print (details.text.encode("utf-8"))
+    app_d = AppDetails(app_id, details.text)
+    try:
+        db_session.add (app_d)
+        db_session.commit()
+    except IntegrityError:
+        db_session.rollback()
+        print ("Already exists "+ app_id)
+
 
 def getDataFromPlayStore(search_param):
     apps = []
@@ -30,5 +44,6 @@ def getDataFromPlayStore(search_param):
 
 
 if __name__ == "__main__":
-    #getDataFromPlayStore("food")
-    getDetailsForApp("com.application.zomato")
+    init_db()
+    getDataFromPlayStore("food")
+    #getDetailsForApp("com.application.zomato")
