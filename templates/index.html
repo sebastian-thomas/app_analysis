@@ -13,14 +13,12 @@
 
 <body>
     <div class="container">
-        <form action="/search" method="POST">
             <div class="form-group">
-                <label for="txt">Search</label>
-                <input type="text" class="form-control" name="txt" id="txt" aria-describedby="searchHelp" placeholder="Enter Keyword">
-                <small id="searchHelp" class="form-text text-muted">Probably the name you search on play store.</small>
+                <input type="text" class="form-control" name="txt" id="search_term" aria-describedby="searchHelp" placeholder="Enter Keyword">
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
+            <button id ="search_button" class="btn btn-primary">Submit</button>
+        <div id="log">
+        </div>
     </div>
 
     <!-- Optional JavaScript -->
@@ -31,6 +29,28 @@
         crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1"
         crossorigin="anonymous"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        socket.on('connect', function () {
+            //socket.emit('my event', { data: 'I\'m connected!' });
+            console.log  ("Socket Connected");
+        });
+
+        socket.on('log', function (data) {
+            console.log (data);
+            $('#log').append('<p>' + data.msg + '</p>');
+        });
+
+        socket.on ('keywords', function (data){
+            console.log (data);
+        });
+
+        $('#search_button').click(function(){
+            console.log ('Searching for :' + $('#search_term').val());
+            socket.emit ('search_event', {'term':$('#search_term').val()});
+        });
+    </script>
 </body>
 
 </html>
